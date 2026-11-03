@@ -1,0 +1,424 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Canvas MVP — SISC</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+  /* Government integration platform — structured, institutional, clear */
+  :root {
+    --bg: #FAFBFC;
+    --fg: #1a2332;
+    --muted: #5a6a7e;
+    --accent: #1a5fb4;
+    --accent-light: #e8f0fc;
+    --surface: #ffffff;
+    --border: #d5dce6;
+    --green: #2d8a56;
+    --green-bg: #e8f5ee;
+    --orange: #c66a10;
+    --orange-bg: #fef3e7;
+    --purple: #7c3aed;
+    --purple-bg: #f0ebff;
+    --red: #c53030;
+    --red-bg: #fee;
+    --header-bg: #1a2332;
+    --header-fg: #ffffff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0f1419;
+      --fg: #e2e8f0;
+      --muted: #94a3b8;
+      --accent: #5b9cf6;
+      --accent-light: #1a2d4a;
+      --surface: #1a2332;
+      --border: #2d3b4e;
+      --green: #4ade80;
+      --green-bg: #14291e;
+      --orange: #fb923c;
+      --orange-bg: #2a1f10;
+      --purple: #a78bfa;
+      --purple-bg: #1e1538;
+      --red: #f87171;
+      --red-bg: #2a1414;
+      --header-bg: #0a0f16;
+      --header-fg: #e2e8f0;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0f1419;
+    --fg: #e2e8f0;
+    --muted: #94a3b8;
+    --accent: #5b9cf6;
+    --accent-light: #1a2d4a;
+    --surface: #1a2332;
+    --border: #2d3b4e;
+    --green: #4ade80;
+    --green-bg: #14291e;
+    --orange: #fb923c;
+    --orange-bg: #2a1f10;
+    --purple: #a78bfa;
+    --purple-bg: #1e1538;
+    --red: #f87171;
+    --red-bg: #2a1414;
+    --header-bg: #0a0f16;
+    --header-fg: #e2e8f0;
+    color-scheme: dark;
+  }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: 'Inter', system-ui, sans-serif;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+    padding-block: 0;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .header {
+    background: var(--header-bg);
+    color: var(--header-fg);
+    padding: 24px 28px;
+    border-radius: 12px;
+    margin-block: 20px 16px;
+    text-align: center;
+  }
+  .header h1 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(1.4rem, 3vw, 1.8rem);
+    font-weight: 700;
+    margin: 0 0 4px;
+    text-wrap: balance;
+    letter-spacing: -0.02em;
+  }
+  .header p {
+    font-size: 0.85rem;
+    opacity: 0.75;
+    margin: 0;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+    gap: 14px;
+    margin-bottom: 14px;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    min-width: 0;
+  }
+  .card-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .card-label .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-blue { background: var(--accent); }
+  .dot-green { background: var(--green); }
+  .dot-orange { background: var(--orange); }
+  .dot-purple { background: var(--purple); }
+  .dot-red { background: var(--red); }
+
+  .card ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .card li {
+    font-size: 0.82rem;
+    line-height: 1.45;
+    color: var(--fg);
+    padding-left: 14px;
+    position: relative;
+  }
+  .card li::before {
+    content: "›";
+    position: absolute;
+    left: 0;
+    color: var(--muted);
+    font-weight: 600;
+  }
+  .card p {
+    font-size: 0.82rem;
+    line-height: 1.5;
+    color: var(--fg);
+    margin: 0;
+  }
+  .pill-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .pill {
+    font-size: 0.72rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .pill-blue { background: var(--accent-light); color: var(--accent); }
+  .pill-green { background: var(--green-bg); color: var(--green); }
+  .pill-orange { background: var(--orange-bg); color: var(--orange); }
+  .pill-purple { background: var(--purple-bg); color: var(--purple); }
+  .pill-red { background: var(--red-bg); color: var(--red); }
+
+  .features-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+    gap: 14px;
+  }
+  .feature-block h4 {
+    font-size: 0.78rem;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--accent);
+  }
+  .feature-block ul {
+    margin: 0; padding: 0; list-style: none;
+    display: flex; flex-direction: column; gap: 4px;
+  }
+  .feature-block li {
+    font-size: 0.78rem;
+    color: var(--fg);
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.4;
+  }
+  .feature-block li::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    color: var(--accent);
+  }
+  .wide { grid-column: 1 / -1; }
+  .two-col-inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 500px) {
+    .two-col-inner { grid-template-columns: 1fr; }
+  }
+  .meta-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 20px;
+    font-size: 0.72rem;
+    color: var(--muted);
+    padding: 12px 0 20px;
+    justify-content: center;
+  }
+  .meta-bar span { white-space: nowrap; }
+  .kpi-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .kpi {
+    flex: 1;
+    min-width: 100px;
+    text-align: center;
+    padding: 10px 8px;
+    background: var(--accent-light);
+    border-radius: 8px;
+  }
+  .kpi .num {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+  }
+  .kpi .lbl {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+</style>
+
+<div class="header">
+  <h1>Canvas MVP — SISC</h1>
+  <p>Sistema Interinstitucional de Servicios Ciudadanos · Lean Inception</p>
+</div>
+
+<div class="grid">
+  <!-- Visión del Producto -->
+  <div class="card">
+    <div class="card-label"><span class="dot dot-blue"></span> Visión del Producto</div>
+    <p>Plataforma unificada que integra los servicios de <strong>RENAP, IGSS, IRTRA, SAT y Transmetro</strong> a través de un Enterprise Service Bus, permitiendo al ciudadano guatemalteco realizar trámites interinstitucionales desde un solo punto de acceso digital.</p>
+  </div>
+
+  <!-- Personas / Segmentos -->
+  <div class="card">
+    <div class="card-label"><span class="dot dot-green"></span> Personas / Segmentos</div>
+    <div class="pill-row">
+      <span class="pill pill-blue">Ciudadano</span>
+      <span class="pill pill-green">Empleador (IGSS)</span>
+      <span class="pill pill-orange">Contribuyente (SAT)</span>
+      <span class="pill pill-purple">Afiliado (IRTRA)</span>
+    </div>
+    <ul style="margin-top:10px;">
+      <li>Persona natural que necesita trámites de identidad, salud, recreación, impuestos o transporte</li>
+      <li>Empresas que reportan trabajadores al IGSS</li>
+      <li>Operadores institucionales de cada entidad</li>
+    </ul>
+  </div>
+
+  <!-- Problemas / Necesidades -->
+  <div class="card">
+    <div class="card-label"><span class="dot dot-red"></span> Problemas / Necesidades</div>
+    <ul>
+      <li>Trámites duplicados: el ciudadano repite datos en cada institución</li>
+      <li>Desplazamientos innecesarios a múltiples sedes físicas</li>
+      <li>No hay interoperabilidad entre los sistemas de gobierno</li>
+      <li>Tiempos de respuesta de días o semanas por procesos manuales</li>
+      <li>Falta de trazabilidad en el estado de los trámites</li>
+    </ul>
+  </div>
+
+  <!-- Propuesta de Valor -->
+  <div class="card">
+    <div class="card-label"><span class="dot dot-purple"></span> Propuesta de Valor</div>
+    <ul>
+      <li><strong>Un solo portal</strong> para trámites de 5 instituciones</li>
+      <li><strong>Reducción del 70%</strong> en tiempo de trámite</li>
+      <li><strong>Interoperabilidad real</strong> vía ESB/API Gateway</li>
+      <li><strong>Trazabilidad completa</strong> del estado de cada solicitud</li>
+      <li><strong>Eliminación de duplicidad</strong> de datos ciudadanos</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Funcionalidades del MVP — wide -->
+<div class="grid">
+  <div class="card wide">
+    <div class="card-label"><span class="dot dot-blue"></span> Funcionalidades del MVP</div>
+    <div class="features-grid">
+      <div class="feature-block">
+        <h4>Release 1 — RENAP</h4>
+        <ul>
+          <li>Consulta de DPI y datos personales</li>
+          <li>Verificación de identidad biométrica</li>
+          <li>Solicitud de constancias en línea</li>
+        </ul>
+      </div>
+      <div class="feature-block">
+        <h4>Release 2 — IGSS</h4>
+        <ul>
+          <li>Consulta de afiliación y aportes</li>
+          <li>Gestión de incapacidades</li>
+          <li>Registro de trabajadores (patronos)</li>
+        </ul>
+      </div>
+      <div class="feature-block">
+        <h4>Release 3 — IRTRA / Transmetro</h4>
+        <ul>
+          <li>Reserva de instalaciones IRTRA</li>
+          <li>Recarga de tarjeta Transmetro</li>
+          <li>Consulta de saldos y rutas</li>
+        </ul>
+      </div>
+      <div class="feature-block">
+        <h4>Release 4 — SAT</h4>
+        <ul>
+          <li>Consulta de NIT y estado tributario</li>
+          <li>Declaración simplificada</li>
+          <li>Generación de constancias fiscales</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Métricas + Costos + Tecnología -->
+<div class="grid">
+  <div class="card">
+    <div class="card-label"><span class="dot dot-green"></span> Métricas de Éxito</div>
+    <ul>
+      <li><strong>Adopción:</strong> 50,000 ciudadanos registrados en 6 meses</li>
+      <li><strong>Eficiencia:</strong> Reducción de 70% en tiempo de trámite</li>
+      <li><strong>Satisfacción:</strong> NPS ≥ 40 en encuestas post-trámite</li>
+      <li><strong>Disponibilidad:</strong> Uptime ≥ 99.5% del portal</li>
+      <li><strong>Integración:</strong> 5 instituciones conectadas vía ESB</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-label"><span class="dot dot-orange"></span> Estimación y Costos</div>
+    <div class="kpi-row" style="margin-bottom: 10px;">
+      <div class="kpi"><div class="num">270.5</div><div class="lbl">UCP</div></div>
+      <div class="kpi"><div class="num">15</div><div class="lbl">Meses</div></div>
+      <div class="kpi"><div class="num">Q7.65M</div><div class="lbl">Presupuesto</div></div>
+    </div>
+    <ul>
+      <li>Técnica: Use Case Points (Karner) + Schneider & Winters</li>
+      <li>Esfuerzo total: 236.7 persona-mes</li>
+      <li>Equipo promedio: ~17 personas</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-label"><span class="dot dot-purple"></span> Stack Tecnológico</div>
+    <div class="pill-row" style="margin-bottom:8px;">
+      <span class="pill pill-blue">PHP</span>
+      <span class="pill pill-green">ESB / API Gateway</span>
+      <span class="pill pill-orange">PostgreSQL</span>
+      <span class="pill pill-purple">Docker</span>
+    </div>
+    <ul>
+      <li>Portal web ciudadano en PHP (MVC)</li>
+      <li>ESB para orquestación de servicios</li>
+      <li>APIs REST por institución</li>
+      <li>PostgreSQL + Redis para cache</li>
+      <li>Despliegue en contenedores Docker</li>
+    </ul>
+  </div>
+</div>
+
+<!-- Riesgos y Cronograma -->
+<div class="grid">
+  <div class="card">
+    <div class="card-label"><span class="dot dot-red"></span> Riesgos Principales</div>
+    <ul>
+      <li>Resistencia al cambio en instituciones gubernamentales</li>
+      <li>Dependencia de APIs legadas sin documentación</li>
+      <li>Regulaciones de privacidad de datos ciudadanos</li>
+      <li>Coordinación interinstitucional y burocracia</li>
+      <li>Disponibilidad de infraestructura en entidades</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <div class="card-label"><span class="dot dot-blue"></span> Cronograma de Releases</div>
+    <ul>
+      <li><strong>R0</strong> — Mes 1–2: Infraestructura base + ESB</li>
+      <li><strong>R1</strong> — Mes 3–5: Integración RENAP</li>
+      <li><strong>R2</strong> — Mes 6–8: Integración IGSS</li>
+      <li><strong>R3</strong> — Mes 9–11: IRTRA + Transmetro</li>
+      <li><strong>R4</strong> — Mes 12–15: Integración SAT + cierre</li>
+    </ul>
+  </div>
+</div>
+
+<div class="meta-bar">
+  <span>Análisis de Sistemas II · Ing. Eddy Méndez</span>
+  <span>Universidad Mariano Gálvez — Campus Villa Nueva</span>
+  <span>Equipo: Morales · Canté · Juárez · Monterroso</span>
+</div>
+
+</body></html>
