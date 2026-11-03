@@ -118,7 +118,7 @@ $u = usuarioActual();
                     <h3 class="font-bold text-slate-900 text-base mb-1">Mis Trámites en Curso</h3>
                     <p class="text-xs text-slate-500 mb-4">Consulta el estado, historial y trazabilidad en tiempo real de tus solicitudes.</p>
                     <div class="flex items-center justify-between text-xs">
-                        <span class="font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded">1 En Revisión</span>
+                        <span class="font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded"> En Revisión</span>
                         <a href="#" onclick="alert('Listado de trámites del ciudadano'); return false;" class="text-blue-900 font-bold hover:underline">Ver detalle →</a>
                     </div>
                 </div>
@@ -210,22 +210,7 @@ $u = usuarioActual();
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        <tr class="hover:bg-slate-50 transition-all">
-                            <td class="py-3.5 px-4 font-mono font-bold text-blue-900">SISC-2026-0001</td>
-                            <td class="py-3.5 px-4">
-                                <span class="bg-blue-50 text-blue-900 font-semibold px-2 py-0.5 rounded">RENAP</span>
-                            </td>
-                            <td class="py-3.5 px-4 font-medium">Validación de Identidad y Registro CUI</td>
-                            <td class="py-3.5 px-4 text-slate-500">Hoy</td>
-                            <td class="py-3.5 px-4">
-                                <span class="bg-emerald-100 text-emerald-800 font-bold px-2.5 py-1 rounded-full text-[10px]">
-                                    ✔ COMPLETADO
-                                </span>
-                            </td>
-                            <td class="py-3.5 px-4 text-right">
-                                <button onclick="alert('Certificado de Registro en SISC emitido correctamente');" class="text-blue-900 font-bold hover:underline">Descargar Constancia</button>
-                            </td>
-                        </tr>
+
                     </tbody>
                 </table>
             </div>

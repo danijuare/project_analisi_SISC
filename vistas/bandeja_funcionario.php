@@ -100,7 +100,7 @@ $esAdmin = ($u["rol_nombre"] === 'ADMINISTRADOR');
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Trámites Pendientes</span>
-                    <h3 class="text-2xl font-black text-slate-900 mt-1">4</h3>
+                    <h3 class="text-2xl font-black text-slate-900 mt-1">0</h3>
                     <span class="text-[11px] text-amber-600 font-medium">Requieren tu atención</span>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
@@ -111,8 +111,7 @@ $esAdmin = ($u["rol_nombre"] === 'ADMINISTRADOR');
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Aprobados Hoy</span>
-                    <h3 class="text-2xl font-black text-slate-900 mt-1">12</h3>
-                    <span class="text-[11px] text-emerald-600 font-medium">+15% vs ayer</span>
+                    <h3 class="text-2xl font-black text-slate-900 mt-1">0</h3>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
                     <i class="fa-solid fa-circle-check"></i>
@@ -122,7 +121,7 @@ $esAdmin = ($u["rol_nombre"] === 'ADMINISTRADOR');
             <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Documentos x Validar</span>
-                    <h3 class="text-2xl font-black text-slate-900 mt-1">3</h3>
+                    <h3 class="text-2xl font-black text-slate-900 mt-1">0</h3>
                     <span class="text-[11px] text-blue-600 font-medium">Con firma electrónica</span>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
@@ -134,7 +133,6 @@ $esAdmin = ($u["rol_nombre"] === 'ADMINISTRADOR');
                 <div>
                     <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Integración ESB</span>
                     <h3 class="text-2xl font-black text-emerald-600 mt-1">ONLINE</h3>
-                    <span class="text-[11px] text-slate-400 font-mono">Latencia: 42ms</span>
                 </div>
                 <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
                     <i class="fa-solid fa-network-wired"></i>
@@ -226,24 +224,7 @@ $esAdmin = ($u["rol_nombre"] === 'ADMINISTRADOR');
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-                        <tr class="hover:bg-slate-50 transition-all">
-                            <td class="py-3.5 px-4 font-mono font-bold text-blue-900">SISC-TR-2026-089</td>
-                            <td class="py-3.5 px-4 font-semibold">Carlos Roberto Morales Gómez</td>
-                            <td class="py-3.5 px-4 font-mono">1234567890101</td>
-                            <td class="py-3.5 px-4">Emisión de Certificado de Registro</td>
-                            <td class="py-3.5 px-4">
-                                <span class="bg-blue-100 text-blue-800 font-bold px-2 py-0.5 rounded text-[10px]">NORMAL</span>
-                            </td>
-                            <td class="py-3.5 px-4">
-                                <span class="bg-amber-100 text-amber-800 font-bold px-2.5 py-1 rounded-full text-[10px]">
-                                    EN REVISIÓN
-                                </span>
-                            </td>
-                            <td class="py-3.5 px-4 text-right space-x-1">
-                                <button onclick="alert('Aprobando solicitud SISC-TR-2026-089 con firma institucional...');" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-2.5 py-1 rounded text-[10px]">Aprobar</button>
-                                <button onclick="alert('Solicitud enviada a corrección');" class="bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold px-2.5 py-1 rounded text-[10px]">Observar</button>
-                            </td>
-                        </tr>
+
                     </tbody>
                 </table>
             </div>
