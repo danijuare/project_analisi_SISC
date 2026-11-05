@@ -50,6 +50,7 @@ switch ($op) {
             $_SESSION["institucion_codigo"] = $res["institucion_codigo"] ?? 'SISC';
             $_SESSION["rol_id"] = $res["rol_id"];
             $_SESSION["rol_nombre"] = $res["rol_nombre"] ?? 'CIUDADANO';
+            $_SESSION["ciudadano_id"] = $res["ciudadano_id"] ?? '0';
             
             // Permisos como array
             $permisosStr = $res["permisos"] ?? '';

@@ -2,229 +2,179 @@
 require_once "validar_sesion.php";
 verificarAcceso(['FUNCIONARIO', 'ADMINISTRADOR']);
 
+require_once __DIR__ . "/../Modelos/Solicitud.php";
 $u = usuarioActual();
 $esAdmin = ($u["rol_nombre"] === 'ADMINISTRADOR');
+
+$estadoFiltro = $_GET["estado"] ?? 'Todos';
+$busqueda = $_GET["q"] ?? '';
+$instFiltro = intval($_GET["institucion"] ?? ($esAdmin ? 0 : $u["institucion_id"]));
+
+$solModel = new Solicitud();
+$solicitudes = $solModel->listarParaFuncionario($instFiltro, $estadoFiltro, $busqueda, $esAdmin);
+
+// Lista de instituciones para filtro de admin
+$instituciones = ejecutarConsulta("SELECT institucion_id, codigo, nombre FROM instituciones WHERE activa = 1 ORDER BY institucion_id ASC");
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Institucional | SISC</title>
+    <title>Bandeja de Solicitudes | SISC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body class="bg-slate-100 min-h-screen flex flex-col font-sans text-slate-800">
+<body class="bg-[#f6f5ee] min-h-screen flex flex-col font-sans text-slate-800">
 
-    <!-- Navbar Superior -->
-    <header class="bg-slate-900 text-white shadow-lg sticky top-0 z-40 border-b border-slate-800">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            
-            <!-- Logo y Marca -->
-            <div class="flex items-center space-x-3">
-                <span class="text-2xl font-black tracking-widest text-blue-400">SISC</span>
-                <span class="text-[10px] bg-slate-800 text-slate-300 border border-slate-700 px-2.5 py-0.5 rounded-full font-bold">
-                    <i class="fa-solid fa-building-columns text-blue-400 me-1"></i> <?php echo htmlspecialchars($u["institucion_nombre"]); ?>
-                </span>
-            </div>
+    <!-- Navbar Superior Funcionario (Diseño Fase 3) -->
+    <?php include "nav_funcionario.php"; ?>
 
-            <!-- Navegación según Rol -->
-            <nav class="hidden md:flex items-center space-x-1 text-xs">
-                <a href="bandeja_funcionario.php" class="px-3 py-2 rounded-lg bg-slate-800 text-white font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-inbox text-blue-400"></i> Bandeja
-                </a>
-
-                <?php if ($esAdmin): ?>
-                <a href="usuarios.php" class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-all font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-users-gear text-emerald-400"></i> Usuarios y Roles
-                </a>
-                <a href="#" onclick="alert('Módulo de Instituciones del Estado'); return false;" class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-all font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-landmark text-amber-400"></i> Instituciones
-                </a>
-                <a href="#" onclick="alert('Bitácora de Auditoría del Sistema'); return false;" class="px-3 py-2 rounded-lg text-slate-300 hover:text-white hover:bg-slate-800 transition-all font-semibold flex items-center gap-1.5">
-                    <i class="fa-solid fa-shield-halved text-purple-400"></i> Auditoría
-                </a>
-                <?php endif; ?>
-            </nav>
-
-            <!-- Datos de Usuario y Salir -->
-            <div class="flex items-center space-x-4">
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs font-bold text-white"><?php echo htmlspecialchars($u["nombre_completo"]); ?></p>
-                    <span class="text-[10px] uppercase font-mono font-bold px-2 py-0.5 rounded <?php echo $esAdmin ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-blue-500/20 text-blue-300 border border-blue-500/30'; ?>">
-                        <?php echo htmlspecialchars($u["rol_nombre"]); ?>
-                    </span>
-                </div>
-                <a href="../ajax/usuario.php?op=salir" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-semibold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span class="hidden sm:inline">Cerrar Sesión</span>
-                </a>
-            </div>
-
-        </div>
-    </header>
-
-    <!-- Contenido Principal -->
+    <!-- Contenido Principal (Mockup Pantalla 08) -->
     <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
-
-        <!-- Banner de Bienvenida -->
-        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div class="space-y-2">
-                <div class="inline-flex items-center gap-2 bg-blue-50 text-blue-900 border border-blue-200 text-xs px-3 py-1 rounded-full font-bold">
-                    <i class="fa-solid fa-shield-cat"></i> Sesión Institucional Autenticada
-                </div>
-                <h1 class="text-2xl sm:text-3xl font-black text-slate-900">
-                    Bandeja Operativa: <?php echo htmlspecialchars($u["institucion_nombre"]); ?>
+        
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <h1 class="text-3xl font-black text-slate-900">
+                    Bandeja de solicitudes
                 </h1>
-                <p class="text-xs text-slate-500 max-w-2xl">
-                    Has ingresado como <strong><?php echo htmlspecialchars($u["rol_nombre"]); ?></strong>. Administra las solicitudes, valida expedientes y gestiona los permisos interinstitucionales del SISC.
+                <p class="text-xs text-slate-500 mt-1">
+                    Gestión interinstitucional de expedientes ciudadanos recibidos
                 </p>
             </div>
 
-            <!-- Accesos rápidos según rol -->
-            <div class="flex flex-wrap gap-2">
-                <?php if ($esAdmin): ?>
-                <a href="usuarios.php" class="bg-[#1d4289] hover:bg-blue-900 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow transition-all flex items-center gap-2">
-                    <i class="fa-solid fa-user-plus"></i> Gestionar Usuarios
-                </a>
-                <?php endif; ?>
-                <button onclick="alert('Actualizando bandeja de solicitudes...');" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2.5 rounded-xl transition-all border border-slate-300 flex items-center gap-2">
-                    <i class="fa-solid fa-rotate-right"></i> Refrescar
-                </button>
-            </div>
-        </div>
-
-        <!-- Métricas Rápidas -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Trámites Pendientes</span>
-                    <h3 class="text-2xl font-black text-slate-900 mt-1">0</h3>
-                    <span class="text-[11px] text-amber-600 font-medium">Requieren tu atención</span>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-clock"></i>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Aprobados Hoy</span>
-                    <h3 class="text-2xl font-black text-slate-900 mt-1">0</h3>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-circle-check"></i>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Documentos x Validar</span>
-                    <h3 class="text-2xl font-black text-slate-900 mt-1">0</h3>
-                    <span class="text-[11px] text-blue-600 font-medium">Con firma electrónica</span>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-signature"></i>
-                </div>
-            </div>
-
-            <div class="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center justify-between">
-                <div>
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Integración ESB</span>
-                    <h3 class="text-2xl font-black text-emerald-600 mt-1">ONLINE</h3>
-                </div>
-                <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center text-xl">
-                    <i class="fa-solid fa-network-wired"></i>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- Módulos de Funcionario vs Administrador -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            
-            <!-- Módulo Bandeja de Trabajo -->
-            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-900 flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-list-check"></i>
-                </div>
-                <h3 class="font-bold text-slate-900 text-base">Revisión de Solicitudes</h3>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Accede a los expedientes iniciados por ciudadanos que corresponden a la institución <strong><?php echo htmlspecialchars($u["institucion_nombre"]); ?></strong> para aprobar, rechazar o solicitar corrección.
-                </p>
-                <button onclick="alert('Cargando expedientes de ventanilla institucional...');" class="w-full py-2.5 bg-blue-900 hover:bg-blue-950 text-white font-bold rounded-xl text-xs transition-all">
-                    Abrir Ventanilla Institucional
-                </button>
-            </div>
-
-            <!-- Módulo Gestión de Usuarios y Roles (Especial para Administrador) -->
-            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4 relative overflow-hidden">
-                <?php if (!$esAdmin): ?>
-                <div class="absolute inset-0 bg-slate-50/80 backdrop-blur-[2px] z-10 flex flex-col items-center justify-center p-6 text-center">
-                    <i class="fa-solid fa-lock text-slate-400 text-2xl mb-2"></i>
-                    <p class="text-xs font-bold text-slate-700">Módulo Restringido</p>
-                    <p class="text-[11px] text-slate-500 mt-1">Exclusivo para rol ADMINISTRADOR</p>
-                </div>
-                <?php endif; ?>
-
-                <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-users"></i>
-                </div>
-                <h3 class="font-bold text-slate-900 text-base">Gestión de Usuarios y Roles</h3>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Crear nuevos funcionarios o administradores, asignar roles institucionales, activar o suspender credenciales ciudadanas.
-                </p>
-                <a href="usuarios.php" class="block text-center w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs transition-all">
-                    Ir a Gestión de Usuarios
-                </a>
-            </div>
-
-            <!-- Módulo Firma Digital y ESB -->
-            <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-                <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-file-shield"></i>
-                </div>
-                <h3 class="font-bold text-slate-900 text-base">Firma Electrónica y ESB</h3>
-                <p class="text-xs text-slate-500 leading-relaxed">
-                    Emisión de resoluciones con certificado digital PKI y comunicación automática mediante el Bus de Servicios Empresariales (ESB).
-                </p>
-                <button onclick="alert('Módulo de firmas electrónicas avanzadas PKI');" class="w-full py-2.5 bg-purple-700 hover:bg-purple-800 text-white font-bold rounded-xl text-xs transition-all">
-                    Configurar Llave PKI
-                </button>
-            </div>
-
-        </div>
-
-        <!-- Tabla de Solicitudes en Bandeja -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                        <i class="fa-solid fa-layer-group text-blue-900"></i> Solicitudes Recibidas en <?php echo htmlspecialchars($u["institucion_nombre"]); ?>
-                    </h3>
-                    <p class="text-xs text-slate-500">Expedientes entrantes pendientes de resolución</p>
-                </div>
-                <span class="text-xs font-semibold bg-slate-100 text-slate-600 px-3 py-1 rounded-full">
-                    Cola de Atención
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold bg-white border border-slate-200 text-slate-700 px-3 py-1.5 rounded-xl shadow-sm">
+                    <i class="fa-solid fa-building-columns text-blue-900 me-1"></i>
+                    <?php echo htmlspecialchars($u["institucion_nombre"]); ?>
                 </span>
             </div>
+        </div>
 
+        <!-- Barra de Búsqueda y Filtros -->
+        <form method="GET" action="bandeja_funcionario.php" class="bg-white p-4 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-3 items-center justify-between">
+            
+            <div class="relative flex-1 w-full">
+                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3 text-slate-400 text-sm"></i>
+                <input type="text" name="q" value="<?php echo htmlspecialchars($busqueda); ?>"
+                       placeholder="Buscar por número o CUI..."
+                       class="w-full pl-11 pr-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-700 text-xs font-semibold transition-all">
+            </div>
+
+            <div class="w-full md:w-56">
+                <select name="institucion" onchange="this.form.submit()" class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-semibold">
+                    <option value="0">Todas las Instituciones</option>
+                    <?php while ($in = $instituciones->fetch_assoc()): ?>
+                        <option value="<?php echo $in['institucion_id']; ?>" <?php echo ($instFiltro == $in['institucion_id']) ? 'selected' : ''; ?>>
+                            <?php echo htmlspecialchars($in['codigo']); ?>
+                        </option>
+                    <?php endwhile; ?>
+                </select>
+            </div>
+
+            <div class="w-full md:w-52">
+                <select name="estado" onchange="this.form.submit()" class="w-full px-4 py-2.5 rounded-2xl border border-slate-200 bg-slate-50 text-xs font-semibold">
+                    <option value="Todos" <?php echo ($estadoFiltro === 'Todos') ? 'selected' : ''; ?>>Filtrar por estado (Todos)</option>
+                    <option value="En proceso" <?php echo ($estadoFiltro === 'En proceso') ? 'selected' : ''; ?>>En proceso</option>
+                    <option value="Pendiente de pago" <?php echo ($estadoFiltro === 'Pendiente de pago') ? 'selected' : ''; ?>>Pendiente de pago</option>
+                    <option value="Finalizada" <?php echo ($estadoFiltro === 'Finalizada') ? 'selected' : ''; ?>>Finalizada</option>
+                    <option value="Rechazada" <?php echo ($estadoFiltro === 'Rechazada') ? 'selected' : ''; ?>>Rechazada</option>
+                </select>
+            </div>
+
+            <div class="flex gap-2 w-full md:w-auto">
+                <button type="submit" class="flex-1 md:flex-none px-5 py-2.5 bg-[#1d4289] hover:bg-blue-900 text-white rounded-2xl text-xs font-bold transition-all shadow-sm">
+                    Buscar
+                </button>
+                <?php if ($busqueda || $estadoFiltro !== 'Todos'): ?>
+                <a href="bandeja_funcionario.php" class="px-3 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-2xl text-xs font-bold transition-all">
+                    Limpiar
+                </a>
+                <?php endif; ?>
+            </div>
+
+        </form>
+
+        <!-- Tabla de Solicitudes (Diseño Fase 3) -->
+        <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
             <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider border-b border-slate-200">
                         <tr>
-                            <th class="py-3 px-4">No. Seguimiento</th>
-                            <th class="py-3 px-4">Ciudadano</th>
-                            <th class="py-3 px-4">CUI</th>
-                            <th class="py-3 px-4">Trámite</th>
-                            <th class="py-3 px-4">Prioridad</th>
-                            <th class="py-3 px-4">Estado</th>
-                            <th class="py-3 px-4 text-right">Acción</th>
+                            <th class="py-3.5 px-6">Número</th>
+                            <th class="py-3.5 px-6">Ciudadano</th>
+                            <th class="py-3.5 px-6">Proceso</th>
+                            <th class="py-3.5 px-6">Paso actual</th>
+                            <th class="py-3.5 px-6">Recibida</th>
+                            <th class="py-3.5 px-6">Estado</th>
+                            <th class="py-3.5 px-6 text-right">Acción</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
-
+                        <?php if ($solicitudes && $solicitudes->num_rows > 0): ?>
+                            <?php while ($s = $solicitudes->fetch_assoc()): ?>
+                                <?php
+                                    $estado = $s['estado'];
+                                    $badge = "bg-amber-100 text-amber-800 border-amber-300";
+                                    if ($estado === 'Finalizada') {
+                                        $badge = "bg-emerald-100 text-emerald-800 border-emerald-300";
+                                    } elseif ($estado === 'Pendiente de pago') {
+                                        $badge = "bg-blue-100 text-blue-800 border-blue-300";
+                                    } elseif ($estado === 'Rechazada') {
+                                        $badge = "bg-rose-100 text-rose-800 border-rose-300";
+                                    }
+                                    
+                                    $pasoTexto = ($s['numero_paso'] ?? 2) . " · " . ($s['paso_nombre'] ?? 'Revisión');
+                                    $fechaTexto = date('d M Y', strtotime($s['fecha_inicio']));
+                                    $cuiEnmascarado = "•••• " . (substr($s['cui'], -4) ?: '0123');
+                                    $esParaRevisar = ($estado === 'En proceso');
+                                ?>
+                                <tr class="hover:bg-slate-50/70 transition-colors">
+                                    <td class="py-4 px-6 font-mono font-bold text-slate-900 text-sm whitespace-nowrap">
+                                        <?php echo htmlspecialchars($s['numero_seguimiento']); ?>
+                                    </td>
+                                    <td class="py-4 px-6">
+                                        <p class="font-bold text-slate-900 text-sm">
+                                            <?php echo htmlspecialchars($s['ciudadano_nombre']); ?>
+                                        </p>
+                                        <span class="font-mono text-slate-400 text-xs">
+                                            CUI <?php echo htmlspecialchars($cuiEnmascarado); ?>
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-6 font-semibold text-slate-700">
+                                        <?php echo htmlspecialchars($s['flujo_nombre']); ?>
+                                    </td>
+                                    <td class="py-4 px-6 font-medium text-slate-600">
+                                        <?php echo htmlspecialchars($pasoTexto); ?>
+                                    </td>
+                                    <td class="py-4 px-6 text-slate-500 whitespace-nowrap">
+                                        <?php echo $fechaTexto; ?>
+                                    </td>
+                                    <td class="py-4 px-6 whitespace-nowrap">
+                                        <span class="inline-block text-xs font-semibold px-3 py-1 rounded-full border <?php echo $badge; ?>">
+                                            <?php echo htmlspecialchars($estado); ?>
+                                        </span>
+                                    </td>
+                                    <td class="py-4 px-6 text-right whitespace-nowrap">
+                                        <?php if ($esParaRevisar): ?>
+                                            <a href="revisar_solicitud.php?id=<?php echo urlencode($s['numero_seguimiento']); ?>" class="px-4 py-1.5 rounded-full bg-[#1d4289] hover:bg-blue-900 text-white text-xs font-bold transition-all shadow-sm inline-block">
+                                                <i class="fa-solid fa-stamp text-[10px] me-1"></i> Revisar y Finalizar
+                                            </a>
+                                        <?php else: ?>
+                                            <a href="revisar_solicitud.php?id=<?php echo urlencode($s['numero_seguimiento']); ?>" class="px-4 py-1.5 rounded-full border border-slate-300 bg-white hover:bg-slate-100 text-slate-800 text-xs font-bold transition-all shadow-sm inline-block">
+                                                Ver Expediente
+                                            </a>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="7" class="py-12 text-center text-slate-400 text-xs">
+                                    No se encontraron solicitudes con los criterios de búsqueda.
+                                </td>
+                            </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -239,4 +189,3 @@ $esAdmin = ($u["rol_nombre"] === 'ADMINISTRADOR');
 
 </body>
 </html>
-

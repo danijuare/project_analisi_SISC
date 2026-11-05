@@ -2,218 +2,222 @@
 require_once "validar_sesion.php";
 verificarAcceso(['CIUDADANO']);
 
+require_once __DIR__ . "/../Modelos/Solicitud.php";
 $u = usuarioActual();
+$solModel = new Solicitud();
+$misTramites = $solModel->listarPorCiudadano($u['id']);
+//print_r($u['id']);
 ?>
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Ciudadano | SISC</title>
+    <title>Inicio Ciudadano | SISC</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
-<body class="bg-slate-50 min-h-screen flex flex-col font-sans text-slate-800">
+<body class="bg-[#f6f5ee] min-h-screen flex flex-col font-sans text-slate-800">
 
     <!-- Navbar Superior -->
-    <header class="bg-[#1d4289] text-white shadow-md sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <span class="text-2xl font-black tracking-widest">SISC</span>
-                <span class="text-xs bg-blue-800 text-blue-200 px-2 py-0.5 rounded font-mono font-bold hidden sm:inline">CIUDADANO</span>
-                <span class="text-xs text-blue-200 hidden md:inline border-l border-blue-700 pl-3">Portal Interinstitucional de Servicios Ciudadanos</span>
-            </div>
+    <?php include "nav_ciudadano.php"; ?>
 
-            <!-- Datos de Usuario y Salir -->
-            <div class="flex items-center space-x-4">
-                <div class="text-right hidden sm:block">
-                    <p class="text-xs font-bold text-white"><?php echo htmlspecialchars($u["nombre_completo"]); ?></p>
-                    <p class="text-[11px] text-blue-200 font-mono">CUI: <?php echo htmlspecialchars($u["cui"]); ?></p>
-                </div>
-                <div class="w-9 h-9 rounded-full bg-blue-700 border-2 border-blue-400 flex items-center justify-center font-bold text-sm text-white">
-                    <i class="fa-solid fa-user"></i>
-                </div>
-                <a href="../ajax/usuario.php?op=salir" class="text-xs bg-rose-600 hover:bg-rose-700 text-white font-semibold px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5 shadow-sm">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span class="hidden sm:inline">Cerrar Sesión</span>
-                </a>
-            </div>
-        </div>
-    </header>
-
-    <!-- Contenido Principal -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-8">
+    <!-- Contenido Principal (Mockup Pantalla 02) -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full space-y-6">
         
-        <!-- Tarjeta de Identidad Ciudadana -->
-        <div class="bg-gradient-to-r from-[#1d4289] to-[#2563eb] rounded-3xl p-6 sm:p-8 text-white shadow-xl relative overflow-hidden">
-            <div class="absolute right-0 top-0 bottom-0 opacity-10 pointer-events-none flex items-center pr-10">
-                <i class="fa-solid fa-id-card text-9xl"></i>
-            </div>
+        <!-- Encabezado de Identidad -->
+        <div class="space-y-1">
+            <span class="text-[11px] font-bold tracking-wider text-blue-900 uppercase">SISC · TU IDENTIDAD CIUDADANA</span>
+            <h1 class="text-3xl font-black text-slate-900">
+                Hola, <?php echo htmlspecialchars(explode(' ', $u["nombre_completo"])[0]); ?>
+            </h1>
+        </div>
+
+        <!-- Rejilla Principal: Credencial Izquierda y Servicios Derecha -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            <div class="relative z-10 space-y-4">
-                <div class="inline-flex items-center gap-2 bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 text-xs px-3 py-1 rounded-full font-semibold">
-                    <i class="fa-solid fa-circle-check text-emerald-400"></i> Identidad Verificada por RENAP
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
-                    <div class="md:col-span-8">
-                        <h1 class="text-2xl sm:text-3xl font-black">
-                            Bienvenido, <?php echo htmlspecialchars($u["nombre_completo"]); ?>
-                        </h1>
-                        <p class="text-sm text-blue-100 mt-1">
-                            Tu expediente único ciudadano está activo y conectado con RENAP, SAT, IGSS, IRTRA y Transmetro.
-                        </p>
-
-                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-5 text-xs">
-                            <div class="bg-blue-950/40 p-2.5 rounded-xl border border-blue-400/20">
-                                <span class="text-[10px] text-blue-300 block uppercase">CUI / DPI</span>
-                                <span class="font-mono font-bold text-white"><?php echo htmlspecialchars($u["cui"] ?: 'No asignado'); ?></span>
-                            </div>
-                            <div class="bg-blue-950/40 p-2.5 rounded-xl border border-blue-400/20">
-                                <span class="text-[10px] text-blue-300 block uppercase">NIT SAT</span>
-                                <span class="font-mono font-bold text-white"><?php echo htmlspecialchars($u["nit"] ?: 'Sin NIT'); ?></span>
-                            </div>
-                            <div class="bg-blue-950/40 p-2.5 rounded-xl border border-blue-400/20">
-                                <span class="text-[10px] text-blue-300 block uppercase">Afiliación IGSS</span>
-                                <span class="font-mono font-bold text-white"><?php echo htmlspecialchars($u["igss"] ?: 'Sin IGSS'); ?></span>
-                            </div>
-                            <div class="bg-blue-950/40 p-2.5 rounded-xl border border-blue-400/20">
-                                <span class="text-[10px] text-blue-300 block uppercase">Rol Activo</span>
-                                <span class="font-mono font-bold text-amber-300"><?php echo htmlspecialchars($u["rol_nombre"]); ?></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="md:col-span-4 flex flex-col sm:flex-row md:flex-col gap-2 justify-center">
-                        <button onclick="alert('Credencial Digital SISC: Código CUI <?php echo $u['cui']; ?> verificado');" class="bg-white text-blue-950 font-bold px-4 py-2.5 rounded-xl text-xs hover:bg-blue-50 transition-all shadow flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-qrcode text-base"></i> Ver Credencial Digital Móvil
-                        </button>
-                        <button onclick="alert('Expediente Ciudadano Unificado: Sin anomalías');" class="bg-blue-900/80 hover:bg-blue-900 text-white font-semibold px-4 py-2.5 rounded-xl text-xs transition-all border border-blue-400/30 flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-file-contract"></i> Mi Ficha Interinstitucional
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Módulos Exclusivos del Ciudadano -->
-        <div>
-            <div class="flex items-center justify-between mb-4">
-                <div>
-                    <h2 class="text-lg font-black text-slate-900">Módulos de Servicios Ciudadanos</h2>
-                    <p class="text-xs text-slate-500">Accede directamente a tus gestiones y servicios del Estado</p>
-                </div>
-                <span class="text-xs font-semibold bg-blue-100 text-blue-900 px-3 py-1 rounded-full">
-                    6 Módulos Disponibles
+            <!-- Columna Izquierda: Credencial Electrónica Móvil -->
+            <div class="lg:col-span-4 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm text-center space-y-4">
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider block">
+                    Credencial electrónica
                 </span>
+
+                <!-- QR Generado con datos del ciudadano -->
+                <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200 inline-block shadow-inner">
+                    <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=SISC_GT:CUI:<?php echo $u['cui']; ?>:<?php echo urlencode($u['nombre_completo']); ?>" 
+                         alt="QR Credencial SISC" 
+                         class="w-44 h-44 mx-auto rounded-xl">
+                </div>
+
+                <div class="space-y-1">
+                    <h3 class="font-extrabold text-slate-900 text-lg">
+                        <?php echo htmlspecialchars($u["nombre_completo"]); ?>
+                    </h3>
+                    <p class="text-xs font-mono font-bold text-slate-500 tracking-wider">
+                        CUI •••• •••• <?php echo substr($u['cui'], -4) ?: '0123'; ?>
+                    </p>
+                    <div class="pt-1">
+                        <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-700 bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
+                            <i class="fa-solid fa-circle-check text-emerald-500"></i> Vigente
+                        </span>
+                    </div>
+                </div>
+
+                <p class="text-[11px] text-slate-400 pt-2 leading-relaxed">
+                    El código QR se renueva automáticamente
+                </p>
+
+                <div class="pt-2 border-t border-slate-100 flex gap-2">
+                    <button onclick="abrirModalCredencial()" class="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-all">
+                        <i class="fa-solid fa-expand me-1"></i> Ampliar
+                    </button>
+                    <a href="tramite_renap.php" class="flex-1 py-2 bg-[#1d4289] hover:bg-blue-900 text-white rounded-xl text-xs font-bold transition-all text-center">
+                        <i class="fa-solid fa-pen-to-square me-1"></i> Actualizar
+                    </a>
+                </div>
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Columna Derecha: Instituciones y Mis Trámites -->
+            <div class="lg:col-span-8 space-y-8">
                 
-                <!-- Módulo 1: Mis Trámites -->
-                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-12 h-12 rounded-xl bg-blue-100 text-blue-900 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-folder-open"></i>
+                <!-- Sección Instituciones -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Instituciones</h2>
+                        <span class="text-xs text-blue-900 font-semibold">Integradas en SISC</span>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1">Mis Trámites en Curso</h3>
-                    <p class="text-xs text-slate-500 mb-4">Consulta el estado, historial y trazabilidad en tiempo real de tus solicitudes.</p>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-semibold text-amber-600 bg-amber-50 px-2 py-0.5 rounded"> En Revisión</span>
-                        <a href="#" onclick="alert('Listado de trámites del ciudadano'); return false;" class="text-blue-900 font-bold hover:underline">Ver detalle →</a>
+
+                    <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        
+                        <!-- RENAP -->
+                        <a href="tramite_renap.php" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-blue-400 shadow-sm hover:shadow transition-all group text-left">
+                            <span class="font-bold text-slate-900 text-sm block group-hover:text-blue-900 transition-colors">RENAP</span>
+                            <span class="text-xs text-slate-400 block mt-0.5">Identidad</span>
+                            <span class="text-[11px] text-blue-600 font-semibold mt-2 inline-flex items-center gap-1">
+                                Actualizar datos <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </a>
+
+                        <!-- SAT -->
+                        <a href="tramite_sat.php" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-blue-400 shadow-sm hover:shadow transition-all group text-left">
+                            <span class="font-bold text-slate-900 text-sm block group-hover:text-blue-900 transition-colors">SAT</span>
+                            <span class="text-xs text-slate-400 block mt-0.5">Tributario</span>
+                            <span class="text-[11px] text-blue-600 font-semibold mt-2 inline-flex items-center gap-1">
+                                RTU y Solvencia <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </a>
+
+                        <!-- IGSS -->
+                        <a href="tramite_igss.php" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-blue-400 shadow-sm hover:shadow transition-all group text-left">
+                            <span class="font-bold text-slate-900 text-sm block group-hover:text-blue-900 transition-colors">IGSS</span>
+                            <span class="text-xs text-slate-400 block mt-0.5">Salud</span>
+                            <span class="text-[11px] text-blue-600 font-semibold mt-2 inline-flex items-center gap-1">
+                                Pedir cita <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </a>
+
+                        <!-- IRTRA -->
+                        <a href="pago_servicio.php?tipo=irtra" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-blue-400 shadow-sm hover:shadow transition-all group text-left">
+                            <span class="font-bold text-slate-900 text-sm block group-hover:text-blue-900 transition-colors">IRTRA</span>
+                            <span class="text-xs text-slate-400 block mt-0.5">Recreación</span>
+                            <span class="text-[11px] text-amber-600 font-semibold mt-2 inline-flex items-center gap-1">
+                                Reservar hostal <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </a>
+
+                        <!-- Transmetro -->
+                        <a href="pago_servicio.php?tipo=transmetro" class="bg-white p-4 rounded-2xl border border-slate-200 hover:border-blue-400 shadow-sm hover:shadow transition-all group text-left">
+                            <span class="font-bold text-slate-900 text-sm block group-hover:text-blue-900 transition-colors">Transmetro</span>
+                            <span class="text-xs text-slate-400 block mt-0.5">Transporte</span>
+                            <span class="text-[11px] text-emerald-600 font-semibold mt-2 inline-flex items-center gap-1">
+                                Comprar saldo <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </a>
+
+                        <!-- Ver todas -->
+                        <a href="control_cruzado.php" class="bg-white p-4 rounded-2xl border border-dashed border-slate-300 hover:border-blue-400 shadow-sm hover:shadow transition-all group text-left flex flex-col justify-between">
+                            <div>
+                                <span class="font-bold text-slate-700 text-sm block">Ver todas</span>
+                                <span class="text-xs text-slate-400 block mt-0.5">Directorio</span>
+                            </div>
+                            <span class="text-[11px] text-slate-500 font-semibold mt-2 inline-flex items-center gap-1">
+                                6 instituciones <i class="fa-solid fa-arrow-right text-[10px]"></i>
+                            </span>
+                        </a>
+
                     </div>
                 </div>
 
-                <!-- Módulo 2: Iniciar Nuevo Trámite -->
-                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-12 h-12 rounded-xl bg-emerald-100 text-emerald-800 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-file-circle-plus"></i>
+                <!-- Sección Mis Trámites (En vivo desde la Base de Datos) -->
+                <div class="space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-slate-500 uppercase tracking-wider">Mis trámites</h2>
+                        <a href="tramite_renap.php" class="text-xs font-bold text-blue-900 hover:underline flex items-center gap-1">
+                            <i class="fa-solid fa-circle-plus"></i> Iniciar nuevo trámite
+                        </a>
                     </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1">Iniciar Nuevo Trámite</h3>
-                    <p class="text-xs text-slate-500 mb-4">Solicita reposición de DPI, solvencias SAT, carné IGSS, afiliación IRTRA o recarga Transmetro.</p>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">5 Instituciones</span>
-                        <a href="#" onclick="alert('Catálogo de trámites interinstitucionales disponible en la siguiente entrega de flujos'); return false;" class="text-emerald-700 font-bold hover:underline">Solicitar →</a>
-                    </div>
-                </div>
 
-                <!-- Módulo 3: Identidad Digital -->
-                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-12 h-12 rounded-xl bg-purple-100 text-purple-800 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-id-card-clip"></i>
-                    </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1">Identidad Digital Móvil</h3>
-                    <p class="text-xs text-slate-500 mb-4">Tu documento de identificación oficial en formato digital avalado por RENAP con código criptográfico.</p>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-semibold text-purple-700 bg-purple-50 px-2 py-0.5 rounded">DPI Activo</span>
-                        <a href="#" onclick="alert('Visualizador de Credencial Ciudadana Móvil'); return false;" class="text-purple-700 font-bold hover:underline">Abrir →</a>
-                    </div>
-                </div>
+                    <div class="space-y-3">
+                        <?php if ($misTramites && $misTramites->num_rows > 0): ?>
+                            <?php while ($t = $misTramites->fetch_assoc()): ?>
+                                <?php
+                                    $estado = $t['estado'];
+                                    $badgeClase = "bg-amber-100 text-amber-800 border-amber-200";
+                                    if ($estado === 'Finalizada') {
+                                        $badgeClase = "bg-emerald-100 text-emerald-800 border-emerald-200";
+                                    } elseif ($estado === 'Pendiente de pago') {
+                                        $badgeClase = "bg-blue-100 text-blue-800 border-blue-200";
+                                    } elseif ($estado === 'Rechazada') {
+                                        $badgeClase = "bg-rose-100 text-rose-800 border-rose-200";
+                                    }
 
-                <!-- Módulo 4: Pagos y Aranceles -->
-                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-12 h-12 rounded-xl bg-amber-100 text-amber-800 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-credit-card"></i>
-                    </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1">Pagos y Aranceles</h3>
-                    <p class="text-xs text-slate-500 mb-4">Paga en línea los aranceles de tus trámites institucionales con tarjeta de débito/crédito o transferencia.</p>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded">Pasarela Segura</span>
-                        <a href="#" onclick="alert('Módulo de pasarela de pagos interinstitucionales'); return false;" class="text-amber-700 font-bold hover:underline">Pagar →</a>
-                    </div>
-                </div>
+                                    // URL destino según estado
+                                    $linkDestino = "seguimiento.php?id=" . urlencode($t['numero_seguimiento']);
+                                    if ($estado === 'Pendiente de pago') {
+                                        $linkDestino = "pago_servicio.php?solicitud=" . urlencode($t['numero_seguimiento']);
+                                    }
+                                ?>
+                                <a href="<?php echo $linkDestino; ?>" class="block bg-white p-4 rounded-2xl border border-slate-200 hover:border-blue-400 hover:shadow-md transition-all group">
+                                    <div class="flex items-center justify-between">
+                                        <div>
+                                            <h4 class="font-bold text-slate-900 text-sm group-hover:text-blue-900 transition-colors">
+                                                <?php echo htmlspecialchars($t['flujo_nombre']); ?>
+                                            </h4>
+                                            <p class="text-xs text-slate-500 mt-0.5">
+                                                <span class="font-semibold text-slate-700"><?php echo htmlspecialchars($t['institucion_codigo']); ?></span> · 
+                                                <span class="font-mono"><?php echo htmlspecialchars($t['numero_seguimiento']); ?></span>
+                                                <span class="text-slate-400 text-[11px] ml-2">Iniciado: <?php echo date('d M Y', strtotime($t['fecha_inicio'])); ?></span>
+                                            </p>
+                                        </div>
 
-                <!-- Módulo 5: Bóveda de Documentos -->
-                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-12 h-12 rounded-xl bg-sky-100 text-sky-800 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-box-archive"></i>
-                    </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1">Bóveda de Documentos</h3>
-                    <p class="text-xs text-slate-500 mb-4">Descarga tus certificados de nacimiento, constancias de RTU, solvencias y resoluciones oficiales.</p>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-semibold text-sky-700 bg-sky-50 px-2 py-0.5 rounded">Firmas Digitales</span>
-                        <a href="#" onclick="alert('Bóveda digital de documentos oficiales con validez jurídica'); return false;" class="text-sky-700 font-bold hover:underline">Explorar →</a>
-                    </div>
-                </div>
-
-                <!-- Módulo 6: Notificaciones -->
-                <div class="bg-white rounded-2xl p-5 border border-slate-200 shadow-sm hover:shadow-md transition-all group">
-                    <div class="w-12 h-12 rounded-xl bg-rose-100 text-rose-800 flex items-center justify-center text-xl mb-4 group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-bell"></i>
-                    </div>
-                    <h3 class="font-bold text-slate-900 text-base mb-1">Notificaciones</h3>
-                    <p class="text-xs text-slate-500 mb-4">Alertas automáticas por correo y SMS sobre resoluciones y vencimiento de trámites.</p>
-                    <div class="flex items-center justify-between text-xs">
-                        <span class="font-semibold text-rose-700 bg-rose-50 px-2 py-0.5 rounded">0 No leídas</span>
-                        <a href="#" onclick="alert('Centro de notificaciones ciudadanas'); return false;" class="text-rose-700 font-bold hover:underline">Ver avisos →</a>
+                                        <div class="flex items-center gap-3">
+                                            <span class="text-xs font-semibold px-3 py-1 rounded-full border <?php echo $badgeClase; ?>">
+                                                <?php echo htmlspecialchars($estado); ?>
+                                            </span>
+                                            <?php if ($estado === 'Pendiente de pago'): ?>
+                                                <span class="bg-blue-900 hover:bg-blue-950 text-white text-xs font-bold px-3 py-1 rounded-xl shadow-sm">
+                                                    Pagar <i class="fa-solid fa-credit-card ms-1"></i>
+                                                </span>
+                                            <?php else: ?>
+                                                <span class="text-slate-400 group-hover:text-blue-900 transition-colors text-xs">
+                                                    <i class="fa-solid fa-chevron-right"></i>
+                                                </span>
+                                            <?php endif; ?>
+                                        </div>
+                                    </div>
+                                </a>
+                            <?php endwhile; ?>
+                        <?php else: ?>
+                            <div class="bg-white p-8 rounded-2xl border border-slate-200 text-center text-slate-400 text-xs">
+                                No tienes trámites registrados actualmente. 
+                                <a href="tramite_renap.php" class="text-blue-900 font-bold underline ml-1">Inicia tu primer trámite aquí</a>.
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
             </div>
-        </div>
 
-        <!-- Trámites Recientes (Mockup Dinámico) -->
-        <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm space-y-4">
-            <h3 class="font-bold text-slate-900 text-base flex items-center gap-2">
-                <i class="fa-solid fa-clock-rotate-left text-blue-900"></i> Historial de Actividad Ciudadana
-            </h3>
-
-            <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left">
-                    <thead class="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
-                        <tr>
-                            <th class="py-3 px-4">No. Seguimiento</th>
-                            <th class="py-3 px-4">Institución</th>
-                            <th class="py-3 px-4">Trámite</th>
-                            <th class="py-3 px-4">Fecha Inicio</th>
-                            <th class="py-3 px-4">Estado</th>
-                            <th class="py-3 px-4 text-right">Acción</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100">
-
-                    </tbody>
-                </table>
-            </div>
         </div>
 
     </main>
@@ -225,4 +229,3 @@ $u = usuarioActual();
 
 </body>
 </html>
-
